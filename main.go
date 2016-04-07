@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"html"
 	"log"
 	"net/http"
 	"os"
@@ -43,9 +41,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World, you came from: %q", html.EscapeString(r.URL.Path))
-	})
+	logging_handler := new(LoggingHandler)
+	http.Handle("/", logging_handler)
 
 	log.Println("Listening from:", listen_addr)
 	log.Fatal(http.ListenAndServe(listen_addr, nil))
