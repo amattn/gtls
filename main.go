@@ -1,8 +1,10 @@
 package main
 
-import "fmt"
+import "log"
 
 func main() {
-	fmt.Println("please run the command: 'git checkout tags/b01' to get started!")
+	log.Println("gtls", Version(), "build", BuildNumber())
 
+	// we are not actually a web server yet.
+	log.Println("Hello World")
 }

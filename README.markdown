@@ -1,7 +1,13 @@
+[GoTutorial.net][] Link Shortener
+=================================
 
-The slides that accompany this tutorial can be found at <http://gotutorial.net/golang_lessons.html>.
 
-## Basic Usage
+[GoTutorial.net]: http://gotutorial.net
+
+
+This is a sample project accompanying GoTutorial.net's web app lesson.  The slides that accompany this tutorial can be found at <http://gotutorial.net/golang_lessons.html>.
+
+## Basic Tutorial Usage
 
 	git clone https://github.com/amattn/gtls.git
 	cd gtls
