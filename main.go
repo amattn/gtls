@@ -1,21 +1,52 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html"
 	"log"
 	"net/http"
+	"os"
 )
 
-const DEFAULT_LISTEN_ADDRESS = ":8080"
+// command line flag variables
+var (
+	show_h       bool
+	show_help    bool
+	show_version bool
+	listen_addr  string
+)
+
+// sensible defaults
+const (
+	DEFAULT_LISTEN_ADDRESS = ":8080"
+)
+
+func init() {
+	flag.BoolVar(&show_h, "h", false, "show help message and exit(0)")
+	flag.BoolVar(&show_help, "help", false, "show help message and exit(0)")
+	flag.BoolVar(&show_version, "version", false, "show version info and exit(0)")
+	flag.StringVar(&listen_addr, "addr", DEFAULT_LISTEN_ADDRESS, "addr that our webserver listens on")
+}
 
 func main() {
 	log.Println("gtls", Version(), "build", BuildNumber())
+
+	flag.Parse()
+
+	if show_version {
+		os.Exit(0)
+	}
+
+	if show_h || show_help {
+		flag.Usage()
+		os.Exit(0)
+	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello World, you came from: %q", html.EscapeString(r.URL.Path))
 	})
 
-	log.Println("Listening from:", DEFAULT_LISTEN_ADDRESS)
-	log.Fatal(http.ListenAndServe(DEFAULT_LISTEN_ADDRESS, nil))
+	log.Println("Listening from:", listen_addr)
+	log.Fatal(http.ListenAndServe(listen_addr, nil))
 }
