@@ -41,9 +41,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	logging_handler := new(LoggingHandler)
-	http.Handle("/", logging_handler)
+	router := NewLoggingRouter()
 
 	log.Println("Listening from:", listen_addr)
-	log.Fatal(http.ListenAndServe(listen_addr, nil))
+	log.Fatal(http.ListenAndServe(listen_addr, router))
 }
