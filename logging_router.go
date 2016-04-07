@@ -8,17 +8,18 @@ import (
 
 type LoggingRouter struct {
 	adminResponder *AdminResponder
-	// userResponder, photosResponder, etc.
+	linksResponder *LinksResponder
 }
 
 func NewLoggingRouter() *LoggingRouter {
 	lr := new(LoggingRouter)
 	lr.adminResponder = new(AdminResponder)
+	lr.linksResponder = NewLinksResponder()
 	return lr
 }
 
-type SimpleRouteResponder interface {
-	Respond(req *http.Request) (statusCode int, responseBytes []byte)
+type SimpleRouteHandler interface {
+	Respond(req *http.Request) (statusCode int, headers map[string]string, responseBytes []byte)
 }
 
 // At a high level, a router inspects a request and routes it to an appropriate subcomponent for handling.
@@ -28,13 +29,21 @@ func (router *LoggingRouter) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	url := req.URL.Path
 	var code int
 	responseBytes := []byte{}
+	extra_headers := map[string]string{}
 
-	if strings.HasPrefix(url, "/admin/") {
-		// use the admin responder
-		code, responseBytes = router.adminResponder.Respond(req)
+	if url == "/" {
+		code = http.StatusOK
+		responseBytes = []byte("Welcome to gtls")
+	} else if strings.HasPrefix(url, "/admin/") {
+		// use the admin handler
+		code, extra_headers, responseBytes = router.adminResponder.Respond(req)
 	} else {
-		code = http.StatusBadRequest
-		responseBytes = []byte("Bad Request")
+		// use the shortlink handler
+		code, extra_headers, responseBytes = router.linksResponder.Respond(req)
+	}
+
+	for k, v := range extra_headers {
+		w.Header().Add(k, v)
 	}
 
 	w.WriteHeader(code)
