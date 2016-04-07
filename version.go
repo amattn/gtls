@@ -1,8 +1,8 @@
 package main
 
 const (
-	internal_BUILD_NUMBER   = 12
-	internal_VERSION_STRING = "0.0.12"
+	internal_BUILD_NUMBER   = 13
+	internal_VERSION_STRING = "0.1.0"
 )
 
 func BuildNumber() int64 {

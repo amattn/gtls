@@ -7,9 +7,23 @@ type AdminResponder struct {
 }
 
 func NewAdminResponder(linkstore *LinkStore) *AdminResponder {
-	handler := new(AdminResponder)
-	handler.BaseResponder = MakeBaseResponder(linkstore)
-	return handler
+	responder := new(AdminResponder)
+	responder.BaseResponder = MakeBaseResponder(linkstore)
+	return responder
+}
+
+func (responder *AdminResponder) ListAllShortlinks(req *http.Request) (statusCode int, headers map[string]string, responseBytes []byte) {
+	if req.Method != "GET" {
+		return http.StatusMethodNotAllowed, nil, []byte("Method not allowed")
+	}
+
+	all_shortlinks, err := responder.linkstore.GetAllShortlinks()
+	if err != nil {
+		return http.StatusInternalServerError, nil, []byte("Internal Server Error")
+	}
+
+	output := ListAllTemplateOutput(ListAllTemplateData{all_shortlinks})
+	return http.StatusOK, nil, output
 }
 
 func (responder *AdminResponder) AddShortlinkFormResponse(req *http.Request) (statusCode int, headers map[string]string, responseBytes []byte) {

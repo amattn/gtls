@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestWorkingAdminLinks(t *testing.T) {
 	not_found_paths := []string{
 		"admin/add",
+		"admin/list",
 	}
 
 	for i, subpath := range not_found_paths {
@@ -34,11 +38,12 @@ func TestGetAPostRoute(t *testing.T) {
 }
 
 func TestCreateShortlink(t *testing.T) {
-	short_code := "TestCreateShortlink"
+	rand.Seed(time.Now().Unix())
+	random := rand.Int31()
+	// so a random value will allow us to run the test multiple times, but does pollute our db.
+	// normally, you'd remove the entry from the db after the test is done.
+	short_code := fmt.Sprintf("test_%d", random)
 
-	// first test to make sure our short code returns 404
-	// As currently stands, this test will fail if you run the test more than once.
-	// our data store is currently write only...
 	short_url := test_server.URL + "/" + short_code
 	res, err := http.Get(short_url)
 	if err != nil {
