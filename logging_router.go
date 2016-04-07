@@ -13,9 +13,22 @@ type LoggingRouter struct {
 
 func NewLoggingRouter() *LoggingRouter {
 	lr := new(LoggingRouter)
-	lr.adminResponder = new(AdminResponder)
-	lr.linksResponder = NewLinksResponder()
+	linksDB := map[string]string{}
+	lr.adminResponder = NewAdminResponder(linksDB)
+	lr.linksResponder = NewLinksResponder(linksDB)
 	return lr
+}
+
+type BaseResponder struct {
+	constructorCanary bool
+	linksDB           map[string]string
+}
+
+func MakeBaseResponder(linksDB map[string]string) BaseResponder {
+	return BaseResponder{
+		constructorCanary: true,
+		linksDB:           linksDB,
+	}
 }
 
 type SimpleRouteHandler interface {
