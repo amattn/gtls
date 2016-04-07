@@ -1,18 +1,24 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
 
 type LoggingRouter struct {
-	adminHandler *AdminHandler
+	adminResponder *AdminResponder
+	// userResponder, photosResponder, etc.
 }
 
 func NewLoggingRouter() *LoggingRouter {
 	lr := new(LoggingRouter)
-	lr.adminHandler = new(AdminHandler)
+	lr.adminResponder = new(AdminResponder)
 	return lr
+}
+
+type SimpleRouteResponder interface {
+	Respond(req *http.Request) (statusCode int, responseBytes []byte)
 }
 
 // At a high level, a router inspects a request and routes it to an appropriate subcomponent for handling.
@@ -20,13 +26,21 @@ func NewLoggingRouter() *LoggingRouter {
 func (router *LoggingRouter) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	url := req.URL.Path
-	if strings.HasPrefix(url, "/admin/") {
-		// use the admin handler
-		router.adminHandler.ServeHTTP(w, req)
-		return
-	} // else if "/users/", else if "/photos/", whatever...
+	var code int
+	responseBytes := []byte{}
 
-	// error for now
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte("Bad Request"))
+	if strings.HasPrefix(url, "/admin/") {
+		// use the admin responder
+		code, responseBytes = router.adminResponder.Respond(req)
+	} else {
+		code = http.StatusBadRequest
+		responseBytes = []byte("Bad Request")
+	}
+
+	w.WriteHeader(code)
+	writtenCount, err := w.Write(responseBytes)
+	if err != nil {
+		log.Println("error writing response", req, err)
+	}
+	log.Printf("%s", CommonLogFormat(req, code, writtenCount))
 }
