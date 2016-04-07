@@ -37,6 +37,8 @@ func TestCreateShortlink(t *testing.T) {
 	short_code := "TestCreateShortlink"
 
 	// first test to make sure our short code returns 404
+	// As currently stands, this test will fail if you run the test more than once.
+	// our data store is currently write only...
 	short_url := test_server.URL + "/" + short_code
 	res, err := http.Get(short_url)
 	if err != nil {

@@ -12,21 +12,21 @@ type LoggingRouter struct {
 
 func NewLoggingRouter() *LoggingRouter {
 	lr := new(LoggingRouter)
-	linksDB := map[string]string{}
-	lr.adminResponder = NewAdminResponder(linksDB)
-	lr.linksResponder = NewLinksResponder(linksDB)
+	linkstore := NewLinkStore("localhost", 5432, "tutorial", "changeme")
+	lr.adminResponder = NewAdminResponder(linkstore)
+	lr.linksResponder = NewLinksResponder(linkstore)
 	return lr
 }
 
 type BaseResponder struct {
 	constructorCanary bool
-	linksDB           map[string]string
+	linkstore         *LinkStore
 }
 
-func MakeBaseResponder(linksDB map[string]string) BaseResponder {
+func MakeBaseResponder(linkstore *LinkStore) BaseResponder {
 	return BaseResponder{
 		constructorCanary: true,
-		linksDB:           linksDB,
+		linkstore:         linkstore,
 	}
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -9,15 +10,15 @@ type LinksResponder struct {
 	BaseResponder
 }
 
-func NewLinksResponder(linksDB map[string]string) *LinksResponder {
-	handler := new(LinksResponder)
-	handler.BaseResponder = MakeBaseResponder(linksDB)
+func NewLinksResponder(linkstore *LinkStore) *LinksResponder {
+	responder := new(LinksResponder)
+	responder.BaseResponder = MakeBaseResponder(linkstore)
 
-	handler.linksDB["a"] = "http://golang.org"
-	handler.linksDB["b"] = "http://tour.golang.org"
-	handler.linksDB["c"] = "http://gotutorial.net"
+	responder.linkstore.AddShortlink("a", "http://golang.org")
+	responder.linkstore.AddShortlink("b", "http://tour.golang.org")
+	responder.linkstore.AddShortlink("c", "http://gotutorial.net")
 
-	return handler
+	return responder
 }
 
 func (responder *LinksResponder) Respond(req *http.Request) (statusCode int, headers map[string]string, responseBytes []byte) {
@@ -28,7 +29,11 @@ func (responder *LinksResponder) Respond(req *http.Request) (statusCode int, hea
 		shortcode = shortcode[1:]
 	}
 
-	longurl := responder.linksDB[shortcode]
+	longurl, err := responder.linkstore.GetShortlink(shortcode)
+	if err != nil {
+		log.Println(2097280714, err)
+		return http.StatusInternalServerError, nil, []byte("Internal Server Error")
+	}
 
 	if longurl != "" {
 		headers := map[string]string{"Location": longurl}
