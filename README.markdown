@@ -22,6 +22,9 @@ after any checkout you can:
 	go test 
 	go build && ./gtls
 
+to get a diff of changes between build, use the following git command:
+
+    git diff b09 b10
 
 Database
 --------
